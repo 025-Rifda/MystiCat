@@ -12,10 +12,10 @@ class Aksesoris extends Produk {
 
   // Constructor
   Aksesoris({
-    required String id,
-    required String name,
-    required String description,
-    required String imagePath,
+    required super.id,
+    required super.name,
+    required super.description,
+    required super.imagePath,
     required double price,
     required String tipe,
     required String bahan,
@@ -26,13 +26,7 @@ class Aksesoris extends Produk {
        _tipe = tipe,
        _bahan = bahan,
        _warna = warna,
-       _waterproof = waterproof,
-       super(
-         id: id,
-         name: name,
-         description: description,
-         imagePath: imagePath,
-       );
+       _waterproof = waterproof;
 
   // Getter methods (Encapsulation)
   @override
@@ -61,6 +55,32 @@ class Aksesoris extends Produk {
 
   // Method khusus untuk aksesoris
   bool isSuitableForOutdoor() => _waterproof;
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      ...super.toMap(),
+      'tipe': _tipe,
+      'bahan': _bahan,
+      'warna': _warna,
+      'waterproof': _waterproof,
+    };
+  }
+
+  factory Aksesoris.fromMap(Map<String, dynamic> map) {
+    return Aksesoris(
+      id: map['id'],
+      name: map['name'],
+      description: map['description'],
+      imagePath: map['imagePath'],
+      price: map['price'],
+      tipe: map['tipe'],
+      bahan: map['bahan'],
+      warna: map['warna'],
+      waterproof: map['waterproof'],
+      rating: map['rating'],
+    );
+  }
 
   // Static method untuk sample data
   static List<Aksesoris> get sampleData => [

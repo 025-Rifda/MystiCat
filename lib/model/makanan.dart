@@ -37,7 +37,7 @@ class Makanan extends Produk {
   // Setter untuk stok (Encapsulation)
   set stok(int value) {
     if (value >= 0) {
-      print('Stok makanan ${this.name} diubah dari $_stok menjadi $value');
+      print('Stok makanan $name diubah dari $_stok menjadi $value');
       _stok = value;
     }
   }
@@ -55,9 +55,29 @@ class Makanan extends Produk {
   // Method khusus untuk makanan
   bool isAvailable() => _stok > 0;
 
+  @override
   String getFormattedPrice() {
     final formatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp');
     return formatter.format(_price);
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {...super.toMap(), 'jenis': _jenis, 'brand': _brand, 'stok': _stok};
+  }
+
+  factory Makanan.fromMap(Map<String, dynamic> map) {
+    return Makanan(
+      id: map['id'],
+      name: map['name'],
+      description: map['description'],
+      imagePath: map['imagePath'],
+      price: map['price'],
+      jenis: map['jenis'],
+      brand: map['brand'],
+      stok: map['stok'],
+      rating: map['rating'],
+    );
   }
 
   // Static method untuk sample data

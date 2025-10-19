@@ -16,10 +16,10 @@ class Adopsi extends Produk {
 
   // Constructor
   Adopsi({
-    required String id,
-    required String name,
-    required String description,
-    required String imagePath,
+    required super.id,
+    required super.name,
+    required super.description,
+    required super.imagePath,
     required String ras,
     required String umur,
     required String jenisKelamin,
@@ -36,13 +36,7 @@ class Adopsi extends Produk {
        _vaksinLengkap = vaksinLengkap,
        _steril = steril,
        _kepribadian = kepribadian,
-       _price = price,
-       super(
-         id: id,
-         name: name,
-         description: description,
-         imagePath: imagePath,
-       );
+       _price = price;
 
   // Getter methods (Encapsulation)
   String get ras => _ras;
@@ -84,6 +78,38 @@ class Adopsi extends Produk {
 
   String getAdoptionStatus() {
     return isReadyForAdoption() ? "Siap Adopsi" : "Belum Siap";
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      ...super.toMap(),
+      'ras': _ras,
+      'umur': _umur,
+      'jenisKelamin': _jenisKelamin,
+      'lokasi': _lokasi,
+      'vaksinLengkap': _vaksinLengkap,
+      'steril': _steril,
+      'kepribadian': _kepribadian,
+    };
+  }
+
+  factory Adopsi.fromMap(Map<String, dynamic> map) {
+    return Adopsi(
+      id: map['id'],
+      name: map['name'],
+      description: map['description'],
+      imagePath: map['imagePath'],
+      price: map['price'],
+      ras: map['ras'],
+      umur: map['umur'],
+      jenisKelamin: map['jenisKelamin'],
+      lokasi: map['lokasi'],
+      vaksinLengkap: map['vaksinLengkap'],
+      steril: map['steril'],
+      kepribadian: List<String>.from(map['kepribadian']),
+      rating: map['rating'],
+    );
   }
 
   // Static method untuk sample data

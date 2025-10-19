@@ -52,6 +52,30 @@ class Mainan extends Produk {
   // Method khusus untuk mainan
   bool isSafeForKittens() => _kategori != 'Dewasa';
 
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      ...super.toMap(),
+      'material': _material,
+      'ukuran': _ukuran,
+      'kategori': _kategori,
+    };
+  }
+
+  factory Mainan.fromMap(Map<String, dynamic> map) {
+    return Mainan(
+      id: map['id'],
+      name: map['name'],
+      description: map['description'],
+      imagePath: map['imagePath'],
+      price: map['price'],
+      material: map['material'],
+      ukuran: map['ukuran'],
+      kategori: map['kategori'],
+      rating: map['rating'],
+    );
+  }
+
   // Static method untuk sample data
   static List<Mainan> get sampleData => [
     Mainan(

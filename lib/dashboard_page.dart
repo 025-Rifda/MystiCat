@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:provider/provider.dart';
+
 import 'model/makanan.dart';
 import 'model/mainan.dart';
 import 'model/aksesoris.dart';
 import 'model/adopsi.dart';
 import 'model/Produk.dart';
 import 'produk_list_page.dart';
+import 'profile_page.dart';
+import 'cart_page.dart';
+import 'purchase_history_page.dart';
+import 'login_page.dart';
+import 'providers/user_provider.dart';
 
 class DashboardPage extends StatefulWidget {
-  final String username;
-  const DashboardPage({super.key, required this.username});
+  const DashboardPage({super.key});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -30,6 +36,41 @@ class _DashboardPageState extends State<DashboardPage> {
     "Adopsi satu kucing, selamatkan dua nyawa: dia dan hatimu ❤️",
   ];
 
+  final List<String> catTips = [
+    "Beri makan kucing 2–3 kali sehari dengan porsi seimbang 🍽️",
+    "Sediakan air bersih setiap hari 💧",
+    "Jangan lupa vaksinasi rutin untuk menjaga kesehatannya 💉",
+    "Sisir bulunya minimal 2 kali seminggu untuk mencegah rontok 🪮",
+    "Luangkan waktu bermain agar kucing tidak stres 🧶",
+    "Gunakan pasir yang bersih dan rutin diganti 🏖️",
+    "Berikan tempat tidur yang nyaman untuknya 🛏️",
+    "Jangan berikan makanan anjing untuk kucing 🚫",
+  ];
+
+  final List<String> catFacts = [
+    "Kucing bisa tidur hingga 16 jam sehari 😴",
+    "Kucing memiliki lebih dari 100 suara berbeda 🐈",
+    "Dengkuran kucing dapat menenangkan manusia 💗",
+    "Kucing selalu mendarat dengan empat kaki karena refleks keseimbangan uniknya 🐾",
+    "Kucing tidak bisa merasakan rasa manis 🍬",
+  ];
+
+  late final String randomQuote;
+  late final List<String> randomTips;
+  late final List<String> randomFacts;
+
+  @override
+  void initState() {
+    super.initState();
+    final rand = Random();
+    randomQuote = catQuotes[rand.nextInt(catQuotes.length)];
+    randomTips = List.generate(5, (_) => catTips[rand.nextInt(catTips.length)]);
+    randomFacts = List.generate(
+      3,
+      (_) => catFacts[rand.nextInt(catFacts.length)],
+    );
+  }
+
   List<Produk> getProduk(String category) {
     switch (category) {
       case "Makanan":
@@ -46,24 +87,65 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _navigateToCategory(String category) {
-    final produkList = getProduk(category);
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) =>
-            ProdukListPage(title: category, produkList: produkList),
+            ProdukListPage(title: category, produkList: getProduk(category)),
+      ),
+    );
+  }
+
+  void _navigateToPage(Widget page) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+  }
+
+  void _logout() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+  }
+
+  Widget _buildInfoContainer({required String title, required Widget content}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFFF5F8), Color.fromARGB(255, 255, 165, 165)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(2, 3)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 251, 112, 112),
+              fontSize: 15,
+            ),
+          ),
+          const SizedBox(height: 8),
+          content,
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final randomQuote = catQuotes[Random().nextInt(catQuotes.length)];
-
     return Scaffold(
       backgroundColor: const Color(0xFFFDF7FA),
       body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // === SIDEBAR KIRI ===
           Container(
@@ -82,28 +164,48 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Column(
               children: [
                 IconButton(
+                  icon: const Icon(Icons.person, color: Colors.white),
+                  onPressed: () => _navigateToPage(const ProfilePage()),
+                ),
+                const SizedBox(height: 20),
+                IconButton(
                   icon: const Icon(Icons.home, color: Colors.white),
                   onPressed: () {},
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 IconButton(
                   icon: const Icon(Icons.fastfood, color: Colors.white),
                   onPressed: () => _navigateToCategory("Makanan"),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 IconButton(
                   icon: const Icon(Icons.toys, color: Colors.white),
                   onPressed: () => _navigateToCategory("Mainan"),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 IconButton(
                   icon: const Icon(Icons.pets, color: Colors.white),
                   onPressed: () => _navigateToCategory("Aksesoris"),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 IconButton(
                   icon: const Icon(Icons.favorite, color: Colors.white),
                   onPressed: () => _navigateToCategory("Adopsi"),
+                ),
+                const SizedBox(height: 20),
+                IconButton(
+                  icon: const Icon(Icons.shopping_cart, color: Colors.white),
+                  onPressed: () => _navigateToPage(const CartPage()),
+                ),
+                const SizedBox(height: 20),
+                IconButton(
+                  icon: const Icon(Icons.history, color: Colors.white),
+                  onPressed: () => _navigateToPage(const PurchaseHistoryPage()),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.logout, color: Colors.white),
+                  onPressed: _logout,
                 ),
               ],
             ),
@@ -141,13 +243,17 @@ class _DashboardPageState extends State<DashboardPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                "Hai, ${widget.username} 👋",
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                              Consumer<UserProvider>(
+                                builder: (context, userProvider, child) {
+                                  return Text(
+                                    "Hai, ${userProvider.username} 👋",
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                },
                               ),
                               const SizedBox(height: 6),
                               const Text(
@@ -165,7 +271,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Section Kategori
                   const Text(
                     "Kategori",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -178,10 +283,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       var category = entry.value;
 
                       final List<Color> colors = [
-                        Color.fromARGB(255, 247, 202, 202),
-                        Color.fromARGB(255, 251, 112, 112),
-                        Color.fromARGB(255, 247, 202, 202),
-                        Color.fromARGB(255, 251, 112, 112),
+                        const Color.fromARGB(255, 247, 202, 202),
+                        const Color.fromARGB(255, 251, 112, 112),
                       ];
 
                       return GestureDetector(
@@ -258,155 +361,69 @@ class _DashboardPageState extends State<DashboardPage> {
           // === SIDEBAR KANAN ===
           Expanded(
             flex: 1,
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 247, 202, 202),
-                    Color.fromARGB(255, 251, 112, 112),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  // Quotes Card
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.95),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.pink.shade100.withOpacity(0.4),
-                          blurRadius: 10,
-                          offset: const Offset(2, 4),
-                        ),
-                      ],
-                    ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Container(
+                  margin: const EdgeInsets.all(13),
+                  padding: const EdgeInsets.all(0),
+                  child: SingleChildScrollView(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.format_quote,
-                          size: 36,
-                          color: Color.fromARGB(255, 251, 112, 112),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          randomQuote,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontStyle: FontStyle.italic,
-                            color: Colors.black87,
+                        _buildInfoContainer(
+                          title: "Quotes 🐱",
+                          content: Text(
+                            randomQuote,
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                        const SizedBox(height: 18),
 
-                  // Favorit Card
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.95),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.pink.shade100.withOpacity(0.4),
-                            blurRadius: 10,
-                            offset: const Offset(2, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Favorit",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 251, 112, 112),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Expanded(
-                            child: ListView(
-                              children: const [
-                                ListTile(
-                                  dense: true,
-                                  leading: Icon(
-                                    Icons.fastfood,
-                                    color: Colors.grey,
-                                  ),
-                                  title: Text("Whiskas Tuna"),
-                                  trailing: Text("⭐ 4.8"),
+                        _buildInfoContainer(
+                          title: "Tips Merawat Kucing 💗",
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: randomTips.map((tip) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Text(
+                                  "• $tip",
+                                  style: const TextStyle(fontSize: 14),
                                 ),
-                                ListTile(
-                                  dense: true,
-                                  leading: Icon(Icons.toys, color: Colors.grey),
-                                  title: Text("Bola Kucing"),
-                                  trailing: Text("⭐ 4.5"),
-                                ),
-                                ListTile(
-                                  dense: true,
-                                  leading: Icon(
-                                    Icons.favorite,
-                                    color: Colors.grey,
-                                  ),
-                                  title: Text("Adopsi Kitty"),
-                                  trailing: Text("⭐ 5.0"),
-                                ),
-                              ],
-                            ),
+                              );
+                            }).toList(),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                        ),
+                        const SizedBox(height: 18),
 
-                  // Tips Perawatan Card
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.95),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.pink.shade100.withOpacity(0.4),
-                          blurRadius: 10,
-                          offset: const Offset(2, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Tips Perawatan 🐾",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 251, 112, 112),
+                        _buildInfoContainer(
+                          title: "Fun Fact Kucing 🐾",
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: randomFacts.map((fact) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Text(
+                                  "• $fact",
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ),
-                        SizedBox(height: 12),
-                        Text(
-                          "✔ Sisir bulu kucing secara rutin untuk mengurangi rontok dan mencegah bulu kusut.\n\n"
-                          "✔ Berikan makanan bergizi seimbang agar kucing tetap sehat dan energik.\n\n"
-                          "✔ Lakukan pemeriksaan kesehatan ke dokter hewan minimal 6 bulan sekali.\n\n",
-                          style: TextStyle(fontSize: 12, color: Colors.black87),
+                        const SizedBox(height: 18),
+
+                        _buildInfoContainer(
+                          title: "Reminder Harian ⏰",
+                          content: const Text(
+                            "Jangan lupa bermain sebentar dengan anabulmu hari ini 💕",
+                            style: TextStyle(fontSize: 14),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],

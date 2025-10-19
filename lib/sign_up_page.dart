@@ -29,18 +29,30 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _signUp() {
     if (_formKey.currentState!.validate()) {
+      FocusScope.of(context).unfocus(); // tutup keyboard
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Account created successfully!'),
-          backgroundColor: Color.fromARGB(255, 230, 96, 120),
+          content: Text('Account created successfully! 🎉'),
+          backgroundColor: Color.fromARGB(255, 251, 112, 112),
+          behavior: SnackBarBehavior.floating,
         ),
       );
+
       Future.delayed(const Duration(seconds: 1), () {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
       });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please complete the form properly 🐾'),
+          backgroundColor: Colors.grey,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -93,7 +105,7 @@ class _SignUpPageState extends State<SignUpPage> {
             style: TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.w800,
-              color: Color.fromARGB(255, 236, 107, 124),
+              color: Color.fromARGB(255, 251, 112, 112),
             ),
           ),
           const SizedBox(height: 30),
@@ -107,8 +119,7 @@ class _SignUpPageState extends State<SignUpPage> {
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Text(
               "Penuhi Kebutuhan Meow-mu\n"
-              "Di MystiCat\n"
-              "Aman, Amanah, Terpercaya.",
+              "Di MystiCat\n",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 18,
@@ -151,6 +162,8 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         child: Form(
           key: _formKey,
+          autovalidateMode:
+              AutovalidateMode.onUserInteraction, // 🌟 realtime validation
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -159,7 +172,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 230, 96, 120),
+                  color: Color.fromARGB(255, 251, 112, 112),
                 ),
               ),
               const SizedBox(height: 24),
@@ -168,7 +181,7 @@ class _SignUpPageState extends State<SignUpPage> {
               _buildTextField(
                 controller: _fullNameController,
                 hint: "Enter your full name",
-                validator: (value) => (value == null || value.isEmpty)
+                validator: (value) => (value == null || value.trim().isEmpty)
                     ? 'Please enter your full name'
                     : null,
               ),
@@ -199,7 +212,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 hint: "Enter password",
                 obscure: _obscurePassword,
                 validator: (value) => (value == null || value.length < 6)
-                    ? 'Min 6 characters'
+                    ? 'Password must be at least 6 characters'
                     : null,
                 suffixIcon: IconButton(
                   icon: Icon(
@@ -207,9 +220,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     color: Colors.grey,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
+                    setState(() => _obscurePassword = !_obscurePassword);
                   },
                 ),
               ),
@@ -220,9 +231,15 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: _confirmPasswordController,
                 hint: "Re-enter password",
                 obscure: _obscureConfirmPassword,
-                validator: (value) => (value != _passwordController.text)
-                    ? 'Passwords do not match'
-                    : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm your password';
+                  }
+                  if (value != _passwordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
                 suffixIcon: IconButton(
                   icon: Icon(
                     _obscureConfirmPassword
@@ -231,9 +248,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     color: Colors.grey,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _obscureConfirmPassword = !_obscureConfirmPassword;
-                    });
+                    setState(
+                      () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                    );
                   },
                 ),
               ),
